@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/>
+<meta content="#f7f1e7" name="theme-color"/>
+<title>MONE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f7fb;color:#20242a;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+.app{max-width:520px;margin:auto;padding:18px 16px 100px}
+h1{font-size:25px;margin:4px 0 18px}.month{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.month button{border:0;background:#fff;border-radius:12px;width:40px;height:40px;font-size:20px}
+.month strong{font-size:18px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 12px #0000000b}.full{grid-column:1/-1}
+.label{font-size:13px;color:#707780}.amount{font-size:23px;font-weight:700;margin-top:7px}
+.income{color:#198754}.expense{color:#d9534f}.section{margin-top:22px}.section h2{font-size:17px;margin:0 0 10px}
+form{background:#fff;border-radius:18px;padding:15px;box-shadow:0 2px 12px #0000000b}
+.row{display:flex;gap:9px;margin-bottom:10px}input,select,button{font:inherit}
+input,select{width:100%;padding:12px;border:1px solid #e0e3e7;border-radius:11px;background:#fff}
+.moneyfield{position:relative;width:100%}.moneyfield input{padding-right:34px}.moneyfield::after{content:"円";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#707780;pointer-events:none}
+.type{display:flex;gap:8px;margin-bottom:10px}.type button{flex:1;border:1px solid #ddd;background:#fff;border-radius:11px;padding:11px}
+.type button.active{background:#20242a;color:#fff;border-color:#20242a}.primary{width:100%;border:0;background:#20242a;color:#fff;padding:13px;border-radius:12px;font-weight:700}
+.item{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:15px;padding:13px 14px;margin-bottom:8px}
+.item .left{min-width:0}.item .cat{font-weight:600}.item .date{font-size:12px;color:#8a9097;margin-top:3px}.item .right{text-align:right}
+.delete{border:0;background:none;color:#aaa;font-size:18px;margin-left:8px}.empty{color:#858b93;text-align:center;padding:20px;background:#fff;border-radius:15px}
+.fab{position:fixed;right:18px;bottom:22px;width:58px;height:58px;border:0;border-radius:50%;background:#20242a;color:#fff;font-size:30px;box-shadow:0 6px 20px #0003}
+small.note{display:block;color:#858b93;font-size:11px;margin-top:8px}
+.progress{height:10px;background:#e9ebee;border-radius:99px;overflow:hidden;margin-top:12px}.bar{height:100%;width:0;background:#20242a;border-radius:99px;transition:width .3s}
+.viewtabs{display:flex;gap:8px;margin:18px 0 10px}.viewtabs button{flex:1;border:1px solid #ddd;background:#fff;border-radius:12px;padding:11px;font-weight:700}.viewtabs button.active{background:#20242a;color:#fff;border-color:#20242a}
+.calendar{background:#fff;border-radius:18px;padding:12px;box-shadow:0 2px 12px #0000000b}.week,.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.week div{text-align:center;font-size:11px;color:#8a9097;padding:5px 0}.day{min-height:66px;border:0;background:#f8f9fb;border-radius:9px;padding:6px 4px;text-align:left;overflow:hidden}.day.blank{background:transparent}.day.today{outline:2px solid #20242a}.day.selected{background:#e9edf3}.daynum{font-size:12px;font-weight:700}.daymoney{font-size:9px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.daymoney.in{color:#198754}.daymoney.out{color:#d9534f;font-weight:700}.day.hasexpense{background:#fff5f4}.day.hasexpense.selected{background:#ffe4e1}.daytotal{font-size:9px;color:#d9534f;font-weight:700;margin-top:4px}.daydetails{margin-top:10px}.hidden{display:none}
+.recurring-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.recurring-item{background:#fff;border-radius:15px;padding:14px;margin-bottom:8px}.recurring-head{display:flex;justify-content:space-between;gap:10px}.recurring-name{font-weight:700}.recurring-meta{font-size:12px;color:#7d848c;margin-top:5px;line-height:1.6}.reserve{font-weight:700;margin-top:7px}.warn{color:#d9534f}.ok{color:#198754}.secondary{width:100%;border:1px solid #dfe2e6;background:#fff;color:#20242a;padding:12px;border-radius:12px;font-weight:700}.rec-actions{display:flex;gap:8px;margin-top:10px}.rec-actions button{flex:1}.help{font-size:12px;color:#707780;line-height:1.6;margin-top:8px}.progress{height:9px;background:#e9ecef;border-radius:999px;overflow:hidden;margin:9px 0 5px}.progress>div{height:100%;background:#198754}.saved-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700}.deposit-row{display:flex;gap:8px;margin-top:10px}.deposit-row input{min-width:0;flex:1}.deposit-row button{width:auto;white-space:nowrap}.history{font-size:12px;color:#707780;margin-top:8px;line-height:1.55}.field{flex:1;min-width:0;max-width:100%}.field input,.field select{min-width:0;max-width:100%}.field input[type="date"]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%}.field-label{display:block;font-size:12px;font-weight:700;color:#656d76;margin:0 0 6px 3px}.recurring-form-title{font-size:15px;font-weight:700;margin-bottom:12px}.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.status-box{background:#f8f9fb;border-radius:11px;padding:10px}.status-box .k{font-size:11px;color:#7d848c}.status-box .v{font-size:15px;font-weight:700;margin-top:3px}.reserve-label{font-size:12px;color:#707780;margin-top:11px}.reserve-value{font-size:17px;font-weight:800;margin-top:2px}
+
+.receipt-box{background:#fff;border-radius:18px;padding:15px;box-shadow:0 2px 12px #0000000b;margin-bottom:10px}.receipt-upload{display:block;border:2px dashed #d8dce2;border-radius:14px;padding:16px;text-align:center;font-weight:700;cursor:pointer}.receipt-upload input{display:none}.receipt-preview{width:100%;max-height:240px;object-fit:contain;border-radius:12px;margin-top:10px;background:#f6f7fb}.receipt-status{font-size:12px;color:#707780;line-height:1.6;margin-top:9px}.receipt-result{margin-top:10px;padding:12px;background:#f8f9fb;border-radius:12px}.receipt-result strong{display:block;margin-bottom:5px}.receipt-actions{display:flex;gap:8px;margin-top:10px}.receipt-actions button{flex:1}.receipt-progress{height:8px;background:#e9ecef;border-radius:99px;overflow:hidden;margin-top:9px}.receipt-progress div{height:100%;background:#20242a;width:0;transition:width .2s}.receipt-text{width:100%;min-height:80px;margin-top:8px;padding:10px;border:1px solid #e0e3e7;border-radius:10px;font-size:12px}
+
+.fixed-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.fixed-item{background:#fff;border-radius:15px;padding:14px;margin-bottom:8px}.fixed-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.fixed-name{font-weight:700}.fixed-meta{font-size:12px;color:#7d848c;margin-top:4px}.fixed-actions{display:flex;gap:8px;margin-top:10px}.fixed-actions button{flex:1}.goal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.goal-history{font-size:12px;color:#707780;line-height:1.6;margin-top:10px}
+
+.app-page{display:none}.app-page.active{display:block}.page-heading{font-size:21px;font-weight:800;margin:4px 0 14px}.bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(6,1fr);background:#fff;border-top:1px solid #e5e7eb;padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:1000;box-shadow:0 -4px 18px #0000000d}.nav-btn{border:0;background:transparent;color:#7a8189;min-height:52px;border-radius:12px;font-size:18px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.nav-btn span{font-size:10px}.nav-btn.active{background:#f0f2f5;color:#20242a}.fab{bottom:82px}.ledger-month{margin-top:0}.app{padding-bottom:180px}@media(max-width:380px){.nav-btn{font-size:17px}.nav-btn span{font-size:9px}}
+
+/* Natural beige theme */
+:root{
+  --bg:#f7f1e7; --surface:#fffdf9; --surface2:#f1e6d6; --ink:#4a3326; --muted:#8b7a6d;
+  --line:#e7dccd; --accent:#8a684f; --accent2:#b99a7a; --green:#667861; --red:#b56f64;
+}
+body{background:linear-gradient(180deg,#faf6ef 0%,#f5eee4 100%);color:var(--ink)}
+.app{max-width:520px;padding-top:20px}
+h1{font-size:27px;letter-spacing:.02em;color:var(--ink)}
+.page-heading{font-size:23px;color:var(--ink);letter-spacing:.02em}
+.section h2{color:var(--ink);font-size:18px}
+.month{background:rgba(255,253,249,.72);border:1px solid var(--line);border-radius:18px;padding:8px 10px;box-shadow:0 8px 28px #6f54320c}
+.month button{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:0 3px 12px #6f54320d}
+.card,form,.calendar,.receipt-box,.recurring-item,.fixed-item{background:rgba(255,253,249,.96);border:1px solid var(--line);box-shadow:0 8px 26px #6f543212}
+.card{border-radius:22px}.label{color:var(--muted)}.amount{color:var(--ink)}
+.income{color:var(--green)}.expense,.warn{color:var(--red)}.ok{color:var(--green)}
+input,select,.receipt-text{background:#fffdfa;border-color:var(--line);color:var(--ink)}
+input::placeholder{color:#b7aa9e}
+.moneyfield::after,.help,small.note,.fixed-meta,.recurring-meta,.history,.goal-history,.receipt-status{color:var(--muted)}
+.primary,.type button.active,.viewtabs button.active{background:var(--ink);border-color:var(--ink);color:#fffdf9}
+.secondary{background:#fffdfa;border-color:var(--line);color:var(--ink)}
+.type button,.viewtabs button{background:#fffdfa;border-color:var(--line);color:var(--ink)}
+.progress{background:#eadfce}.progress>div,.bar{background:var(--green)}
+.status-box,.receipt-result{background:#f6efe5}
+.receipt-upload{border-color:#d8c7b2;background:#fbf6ee;color:var(--ink)}
+.receipt-preview{background:#f5ede2}
+.day{background:#faf5ed;color:var(--ink)}.day.today{outline-color:var(--accent)}.day.selected{background:#e9dccb}.day.hasexpense{background:#fbefeb}.day.hasexpense.selected{background:#f3ddd6}
+.daymoney.in{color:var(--green)}.daymoney.out,.daytotal{color:var(--red)}
+.empty{background:rgba(255,253,249,.9);border:1px dashed #dbcbb8;color:var(--muted);border-radius:18px}
+.item{background:rgba(255,253,249,.96);border:1px solid var(--line);box-shadow:0 4px 16px #6f54320b}
+.fab{background:var(--accent);box-shadow:0 8px 22px #60452e33}
+/* Floating add button: keep it above mobile hosting badges and always tappable */
+.bottom-nav{background:rgba(255,253,249,.97);border-top-color:var(--line);box-shadow:0 -8px 28px #6f543212;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav-btn{color:#98877a}.nav-btn.active{background:#efe3d3;color:var(--ink)}
+.fixed-summary .card,.recurring-summary .card{background:#f9f3ea}
+.reserve-value{color:var(--green)}
+.recurring-form-title,.fixed-name,.recurring-name{color:var(--ink)}
+@media (prefers-color-scheme:dark){body{background:linear-gradient(180deg,#faf6ef 0%,#f5eee4 100%);color:var(--ink)}}
+
+
+.edit-btn{border:0;background:#f1e6d6;color:#6f543f;border-radius:9px;padding:7px 9px;font-size:12px;font-weight:700;margin-left:6px}
+.item .right{display:flex;align-items:center;justify-content:flex-end;gap:2px;flex-wrap:wrap}
+.calc-overlay{position:fixed;inset:0;background:#0006;z-index:3000;display:flex;align-items:flex-end;justify-content:center}.calc-overlay.hidden{display:none}.calc-panel{width:min(520px,100%);background:#fffaf2;border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px #0003}.calc-title{display:flex;justify-content:space-between;align-items:center;color:var(--ink);font-weight:800;margin-bottom:10px}.calc-close{border:0;background:transparent;font-size:24px;color:var(--muted);padding:5px 10px}.calc-display{background:#f1e6d6;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:right;font-size:28px;font-weight:800;min-height:62px;overflow:hidden;color:var(--ink);margin-bottom:10px}.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.calc-key{border:1px solid var(--line);background:#fffdf9;color:var(--ink);border-radius:14px;min-height:52px;font-size:20px;font-weight:700}.calc-key.op{background:#eee1d1}.calc-key.done{background:var(--ink);color:#fff}.calc-key.wide{grid-column:span 2}.edit-note{font-size:12px;color:var(--muted);margin-top:8px}
+
+.auth-view.hidden{display:none}.auth-back{margin-top:10px}.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card-item{background:#fffdf9;border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:8px}.card-meta{font-size:12px;color:var(--muted);line-height:1.6;margin-top:5px}.auth-overlay{position:fixed;inset:0;z-index:5000;background:#f6efe5;display:flex;align-items:center;justify-content:center;padding:22px}.auth-overlay.hidden{display:none}.auth-card{width:min(440px,100%);background:#fffdf9;border:1px solid #e4d6c4;border-radius:24px;padding:22px;box-shadow:0 18px 60px #6f543226}.auth-logo{font-size:34px;text-align:center}.auth-title{text-align:center;font-size:25px;font-weight:900;margin:8px 0 4px}.auth-sub{text-align:center;color:#7b7064;font-size:13px;line-height:1.6;margin-bottom:18px}.auth-card input{width:100%;margin:6px 0 10px}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-msg{font-size:12px;color:#7b7064;line-height:1.5;margin-top:12px;min-height:18px}.cloud-card{display:flex;align-items:center;justify-content:space-between;gap:12px}.cloud-left{min-width:0}.cloud-status{font-weight:800}.cloud-user{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}.cloud-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#b8b0a6;margin-right:6px}.cloud-dot.ok{background:#4f8a63}.cloud-dot.busy{background:#c58a3d}.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.share-code{font-size:25px;font-weight:900;letter-spacing:2px;text-align:center;padding:12px;background:#f1e6d6;border-radius:14px;margin-top:10px}.tiny-btn{border:1px solid var(--line);background:#fffdf9;border-radius:10px;padding:9px 11px;font-weight:700}.sync-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+.brand-title{font-size:29px;letter-spacing:.08em;margin-bottom:12px}.brand-title span{font-size:20px}.settings-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:10px}.settings-title{font-weight:800;margin-bottom:9px}.theme-grid,.character-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choice-btn{border:1px solid var(--line);background:var(--surface);border-radius:13px;padding:10px 6px;color:var(--ink);font-weight:700}.choice-btn.active{outline:2px solid var(--accent);background:var(--surface2)}.character-preview{text-align:center;font-size:48px;padding:8px}.category-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}.category-row input{flex:1}.category-row button{width:auto}.fixed-badge{font-size:11px;background:var(--surface2);padding:3px 7px;border-radius:99px;margin-left:5px;color:var(--muted)}.card-month-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.theme-pink{--bg:#fff3f5;--surface:#fffafb;--surface2:#f7dfe5;--ink:#604047;--muted:#967780;--line:#efd8de;--accent:#b87887;--accent2:#d6a7b2;--green:#6f846d;--red:#b96672}.theme-sage{--bg:#f0f5ef;--surface:#fbfdf9;--surface2:#dfe9dc;--ink:#38483a;--muted:#718071;--line:#d5dfd2;--accent:#6f876c;--accent2:#9db198;--green:#567654;--red:#a66d67}.theme-blue{--bg:#eef2f5;--surface:#fbfcfd;--surface2:#dce5eb;--ink:#344550;--muted:#72818a;--line:#d5dee4;--accent:#668294;--accent2:#93a9b6;--green:#607d70;--red:#a76d70}.theme-mono{--bg:#f2f2f2;--surface:#fff;--surface2:#e6e6e6;--ink:#222;--muted:#737373;--line:#ddd;--accent:#555;--accent2:#888;--green:#4f6d58;--red:#9b5f5f}.theme-dark{--bg:#17181b;--surface:#23252a;--surface2:#30333a;--ink:#f3eee7;--muted:#aaa7a2;--line:#3a3d43;--accent:#c5a77f;--accent2:#927b61;--green:#89a78d;--red:#d48c86}body.theme-dark{background:#17181b}.theme-dark .bottom-nav{background:#23252af5}.theme-dark input,.theme-dark select,.theme-dark .secondary,.theme-dark .choice-btn{background:#292c31;color:#f3eee7}.theme-dark .month{background:#23252acc}.theme-dark .month button{background:#292c31;color:#f3eee7}.theme-dark .day{background:#292c31}.theme-dark .empty{background:#23252a}.theme-dark .calc-panel{background:#23252a}.theme-dark .calc-display{background:#30333a}.theme-dark .calc-key{background:#292c31;color:#f3eee7}.theme-dark .calc-key.op{background:#343840}
+
+/* MONE v22: stronger themes, dark-mode contrast, compact settings, illustrated mascots */
+body{background:var(--page-gradient,linear-gradient(180deg,#faf6ef 0%,#f5eee4 100%));transition:background .2s,color .2s}
+body.theme-pink{--page-gradient:linear-gradient(180deg,#fff0f4 0%,#f9dfe7 100%);--surface:#fff8fa;--surface2:#f5cbd7;--ink:#623946;--muted:#936d79;--line:#eabfcb;--accent:#bd7087;--accent2:#d99bad;--green:#65816e;--red:#bd6272}
+body.theme-sage{--page-gradient:linear-gradient(180deg,#f0f5e8 0%,#dfe9d2 100%);--surface:#fbfdf7;--surface2:#d4e1c4;--ink:#34452f;--muted:#6f806a;--line:#c9d8bb;--accent:#718b68;--accent2:#9eb392;--green:#52734f;--red:#aa6b67}
+body.theme-blue{--page-gradient:linear-gradient(180deg,#eef5fa 0%,#dce8f1 100%);--surface:#f9fcff;--surface2:#cedee9;--ink:#304655;--muted:#6c7f8c;--line:#c7d7e2;--accent:#62839a;--accent2:#91aabd;--green:#5d7d70;--red:#aa6a70}
+body.theme-mono{--page-gradient:linear-gradient(180deg,#f7f7f7 0%,#e8e8e8 100%);--surface:#fff;--surface2:#dedede;--ink:#242424;--muted:#707070;--line:#cfcfcf;--accent:#555;--accent2:#858585;--green:#4f6d58;--red:#985e5e}
+body.theme-dark{--page-gradient:linear-gradient(180deg,#15171b 0%,#0e1013 100%);--surface:#24272d;--surface2:#333740;--ink:#f7f2eb;--muted:#bbb5ad;--line:#424751;--accent:#c8a77b;--accent2:#967c5e;--green:#91b197;--red:#e0928a}
+body.theme-pink .card,body.theme-pink form,body.theme-pink .settings-card,body.theme-pink .item,body.theme-pink .fixed-item,body.theme-pink .recurring-item{box-shadow:0 9px 28px #9c496916}
+body.theme-sage .card,body.theme-sage form,body.theme-sage .settings-card,body.theme-sage .item,body.theme-sage .fixed-item,body.theme-sage .recurring-item{box-shadow:0 9px 28px #42613c16}
+body.theme-blue .card,body.theme-blue form,body.theme-blue .settings-card,body.theme-blue .item,body.theme-blue .fixed-item,body.theme-blue .recurring-item{box-shadow:0 9px 28px #385d7416}
+body.theme-pink .bottom-nav{background:#fff6f9f2} body.theme-sage .bottom-nav{background:#f8fbf3f2} body.theme-blue .bottom-nav{background:#f7fbfef2} body.theme-mono .bottom-nav{background:#fafafaf2}
+body.theme-pink .nav-btn.active{background:#f4ccd7} body.theme-sage .nav-btn.active{background:#d7e4ca} body.theme-blue .nav-btn.active{background:#d5e4ee} body.theme-mono .nav-btn.active{background:#dedede}
+body.theme-dark .card,body.theme-dark form,body.theme-dark .calendar,body.theme-dark .receipt-box,body.theme-dark .recurring-item,body.theme-dark .fixed-item,body.theme-dark .item,body.theme-dark .settings-card,body.theme-dark .card-item{background:var(--surface)!important;border-color:var(--line)!important;color:var(--ink)!important;box-shadow:0 8px 28px #0005}
+body.theme-dark .label,body.theme-dark .help,body.theme-dark .fixed-meta,body.theme-dark .recurring-meta,body.theme-dark .history,body.theme-dark .goal-history,body.theme-dark .receipt-status,body.theme-dark .field-label,body.theme-dark .card-meta,body.theme-dark .sync-note,body.theme-dark .cloud-user,body.theme-dark .date{color:var(--muted)!important}
+body.theme-dark .amount:not(.income):not(.expense),body.theme-dark .page-heading,body.theme-dark h1,body.theme-dark h2,body.theme-dark strong,body.theme-dark .fixed-name,body.theme-dark .recurring-name{color:var(--ink)!important}
+body.theme-dark .income{color:var(--green)!important} body.theme-dark .expense,body.theme-dark .warn{color:var(--red)!important}
+body.theme-dark .status-box,body.theme-dark .receipt-result,body.theme-dark .fixed-summary .card,body.theme-dark .recurring-summary .card{background:var(--surface2)!important;color:var(--ink)!important}
+body.theme-dark .progress{background:#444954!important} body.theme-dark .empty{background:var(--surface)!important;color:var(--muted)!important;border-color:var(--line)!important}
+body.theme-dark .bottom-nav{background:#202329f5!important;border-top-color:var(--line)!important} body.theme-dark .nav-btn{color:#b9b4ad!important} body.theme-dark .nav-btn.active{background:#383d46!important;color:#fff!important}
+body.theme-dark .primary,body.theme-dark .type button.active,body.theme-dark .viewtabs button.active{background:#eee7dc!important;color:#1b1d21!important}
+body.theme-dark .share-code,body.theme-dark .receipt-preview{background:var(--surface2)!important}
+.settings-menu{display:grid;gap:10px}.settings-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:15px;border-radius:18px;font-weight:800}.settings-toggle small{display:block;color:var(--muted);font-weight:500;margin-top:3px}.settings-panel{display:none;margin-top:8px}.settings-panel.open{display:block}.settings-toggle .chev{font-size:20px;color:var(--muted)}
+.character-grid{grid-template-columns:repeat(3,1fr)}.char-btn{padding:8px 4px}.char-art{width:74px;height:74px;margin:0 auto 5px;display:block}.char-label{font-size:12px}.character-preview{font-size:14px;padding:10px}.character-preview .char-art{width:116px;height:116px}.character-stage{display:none;margin:14px 0 4px;border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:12px;align-items:center;gap:12px}.character-stage.show{display:flex}.character-stage .char-art{width:92px;height:92px;flex:0 0 92px}.character-stage-copy{font-size:12px;color:var(--muted);line-height:1.5}.character-stage-copy strong{display:block;color:var(--ink);font-size:15px;margin-bottom:3px}
+
+
+.char-art-wrap{position:relative;display:block;margin:0 auto 5px;overflow:hidden;border-radius:24px;background:#fffaf6}.char-art-wrap .char-art{width:100%!important;height:100%!important;display:block;object-fit:cover;margin:0!important}.char-growth-badge{position:absolute;right:2px;top:2px;font-size:20px;filter:drop-shadow(0 2px 3px #0002)}
+.char-btn{min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center}.char-btn .char-art-wrap{width:78px!important;height:78px!important}.character-preview .char-art-wrap{width:150px!important;height:150px!important;margin-bottom:8px}.character-stage .char-art-wrap{width:100px!important;height:100px!important;flex:0 0 100px}.theme-dark .char-art-wrap{box-shadow:0 0 0 1px #ffffff18}
+
+/* MONE v24 hotfix: iPhone safe-area, dark controls, receipt, fixed month */
+.app{padding-bottom:calc(190px + env(safe-area-inset-bottom))!important}
+.app-page{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.bottom-nav{padding-bottom:calc(9px + env(safe-area-inset-bottom));min-height:calc(68px + env(safe-area-inset-bottom))}
+.fixed-start-row{display:grid!important;grid-template-columns:minmax(0,1fr);width:100%}
+.fixed-start-row .field{width:100%;min-width:0;max-width:100%;overflow:hidden}
+#fixedStartMonth{display:block!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;-webkit-appearance:none;appearance:none}
+body.theme-dark .type button:not(.active),body.theme-dark .viewtabs button:not(.active),body.theme-dark .secondary,body.theme-dark .choice-btn{background:#292c31!important;color:#f7f2eb!important;border-color:#4a4f59!important}
+body.theme-dark .receipt-upload{background:#30333a!important;color:#f7f2eb!important;border-color:#6b707a!important}
+body.theme-dark .receipt-upload *{color:inherit!important}
+body.theme-dark input,body.theme-dark select,body.theme-dark .receipt-text{background:#292c31!important;color:#f7f2eb!important;border-color:#4a4f59!important}
+body.theme-dark input::placeholder{color:#aaa7a2!important;opacity:1}
+body.theme-dark .viewtabs button,body.theme-dark .type button{opacity:1!important}
+@media(max-width:520px){.row{min-width:0}.field{min-width:0}.fixed-start-row{overflow:hidden}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-v24.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192-v24.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512-v24.png">
+
+<link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body>
+<div class="auth-overlay" id="authOverlay"><div class="auth-card"><div class="auth-logo">🤎</div><div id="loginView" class="auth-view"><div class="auth-title">MONE</div><div class="auth-sub">家族で同じ家計簿を共有できるよ。<br>メールアドレスでログインしてね。</div><form id="loginForm"><input id="authEmail" name="username" type="email" inputmode="email" autocapitalize="none" autocomplete="username" placeholder="メールアドレス"><input id="authPassword" name="password" type="password" autocomplete="current-password" placeholder="パスワード"><button class="primary" id="authLogin" type="submit">ログイン</button></form><button class="secondary" id="showSignup" type="button" style="margin-top:10px">新規登録</button></div><div id="signupView" class="auth-view hidden"><div class="auth-title">新規アカウント作成</div><div class="auth-sub">家族で家計簿を共有するためのアカウントを作成します。</div><form id="signupForm"><input id="signupEmail" name="username" type="email" inputmode="email" autocapitalize="none" autocomplete="username" placeholder="メールアドレス"><input id="signupPassword" name="new-password" type="password" autocomplete="new-password" placeholder="パスワード（6文字以上）"><input id="signupPassword2" type="password" autocomplete="new-password" placeholder="パスワード確認"><button class="primary" id="authSignup" type="submit">アカウントを作成</button></form><button class="secondary auth-back" id="backLogin" type="button">← ログイン画面に戻る</button></div><div class="auth-msg" id="authMsg"></div></div></div>
+<div class="app">
+
+
+
+
+
+
+
+
+
+
+
+
+<h1 class="brand-title">MONE <span>🌿</span></h1><div class="app-page active" id="page-home"><div class="page-heading">ホーム</div><div class="month"><button id="prev">‹</button><strong id="monthLabel"></strong><button id="next">›</button></div><div class="cards">
+<div class="card"><div class="label">収入</div><div class="amount income" id="income">¥0</div></div>
+<div class="card"><div class="label">支出</div><div class="amount expense" id="expense">¥0</div></div>
+<div class="card full"><div class="label">今月の残り</div><div class="amount" id="balance">¥0</div></div>
+</div><div class="character-stage" id="characterStage"><div id="homeCharacter"></div><div class="character-stage-copy"><strong id="characterStageTitle">貯金もコツコツ</strong><span id="characterStageText">目標に向かって一緒に進もう。</span></div></div><div class="section"><h2>📅 給料日</h2>
+<div class="card"><div class="label">毎月25日（土日祝は前倒し）</div>
+<div class="amount" id="paydayText">計算中…</div><div class="label" id="paydayCountdown" style="margin-top:6px"></div></div>
+</div><div class="section"><h2>今月の明細</h2><div id="homeRecent"></div></div></div><div class="app-page" id="page-ledger"><div class="page-heading">家計簿</div><div class="month ledger-month"><button id="ledgerPrev" type="button">‹</button><strong id="ledgerMonthLabel"></strong><button id="ledgerNext" type="button">›</button></div><div class="section"><h2>🧾 レシートから入力</h2>
+<div class="receipt-box">
+<label class="receipt-upload">📷 レシートを撮影・選択<input accept="image/*" capture="environment" id="receiptFile" type="file"/></label>
+<img alt="選択したレシート" class="receipt-preview hidden" id="receiptPreview"/>
+<div class="receipt-status" id="receiptStatus">レシートを選ぶと、日付・合計金額・お店を読み取って明細に入れるわよ。登録前に内容を確認できるよ。</div>
+<div class="receipt-progress hidden" id="receiptProgress"><div></div></div>
+<div class="receipt-result hidden" id="receiptResult"><strong>読み取り結果</strong><div id="receiptSummary"></div><textarea class="receipt-text" id="receiptRaw" readonly=""></textarea><div class="receipt-actions"><button class="primary" id="applyReceipt" type="button">明細に反映</button><button class="secondary" id="clearReceipt" type="button">やり直す</button></div></div>
+</div></div><div class="section"><h2>明細を追加</h2>
+<form id="form">
+<div class="type"><button class="active" id="expenseBtn" type="button">支出</button><button id="incomeBtn" type="button">収入</button></div>
+<div class="row"><div class="moneyfield"><input autocomplete="off" class="money-input" id="amountInput" inputmode="numeric" placeholder="金額" required="" type="text"/></div><select id="category"></select></div>
+<div class="row"><input id="memo" placeholder="メモ（任意）" type="text"/><input id="date" required="" type="date"/></div>
+<button class="primary" id="entrySubmit" type="submit">追加する</button><button class="secondary hidden" id="entryCancel" style="margin-top:8px" type="button">編集をキャンセル</button><small class="note">ログイン中は家族の端末とクラウド同期されます。</small>
+</form></div><div class="viewtabs"><button class="active" id="monthlyTab" type="button">📊 月間</button><button id="calendarTab" type="button">📅 カレンダー</button></div><div id="monthlyView"><div class="section"><h2>今月の明細</h2><div id="list"></div></div></div><div class="hidden" id="calendarView"><div class="calendar"><div class="week"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div><div class="calgrid" id="calgrid"></div></div><div class="daydetails" id="daydetails"></div></div></div><div class="app-page" id="page-savings"><div class="page-heading">貯金・積立</div><div class="section"><h2>🎯 貯金目標</h2>
+<div class="card">
+<div class="label">目標金額</div><div class="amount" id="goalAmountText">¥1,000,000</div>
+<div class="progress"><div class="bar" id="goalBar"></div></div>
+<div class="label" id="goalPercent" style="margin-top:8px">現在の貯金額 ¥0（0.0%）</div>
+<div class="goal-actions">
+<div><label class="field-label" for="goalInput">目標金額を変更</label><div class="moneyfield"><input autocomplete="off" class="money-input" id="goalInput" inputmode="numeric" placeholder="1,000,000" type="text"/></div><button class="secondary" id="changeGoal" style="margin-top:8px" type="button">目標を変更</button></div>
+<div><label class="field-label" for="savedInput">今回貯金した金額</label><div class="moneyfield"><input autocomplete="off" class="money-input" id="savedInput" inputmode="numeric" placeholder="10,000" type="text"/></div><button class="primary" id="saveGoal" style="margin-top:8px" type="button">＋ 貯金する</button></div>
+</div>
+<div class="goal-history" id="goalHistory"></div>
+</div></div><div class="section"><h2>🔁 定期支出・積立</h2>
+<div class="recurring-summary"><div class="card"><div class="label">毎月の積立目安</div><div class="amount" id="reserveTotal">¥0</div></div><div class="card"><div class="label">登録件数</div><div class="amount" id="recurringCount">0件</div></div></div>
+<form id="recurringForm">
+<div class="recurring-form-title">定期支出を登録</div>
+<div class="row"><div class="field"><label class="field-label" for="recName">支出名</label><input id="recName" placeholder="例：車の自賠責保険" required="" type="text"/></div><div class="field"><label class="field-label" for="recAmount">支払金額</label><div class="moneyfield"><input autocomplete="off" class="money-input" id="recAmount" inputmode="numeric" placeholder="120,000" required="" type="text"/></div></div></div>
+<div class="row"><div class="field"><label class="field-label" for="recUnit">支払周期の単位</label><select id="recUnit"><option value="month">か月ごと</option><option value="year">年ごと</option></select></div><div class="field"><label class="field-label" for="recInterval">何か月・何年ごと？</label><input id="recInterval" inputmode="numeric" min="1" placeholder="12" required="" type="number" value="12"/></div></div>
+<div class="row"><div class="field"><label class="field-label" for="recNext">次回支払日</label><input id="recNext" required="" type="date"/></div><div class="field"><label class="field-label" for="recCategory">カテゴリ</label><select id="recCategory"><option>車</option><option>保険</option><option>税金</option><option>住居</option><option>その他</option></select></div></div>
+<button class="primary" type="submit">この定期支出を登録</button><div class="help">登録すると、次回支払日までに必要な毎月の積立額を自動計算するよ。</div>
+</form><div id="recurringList" style="margin-top:10px"></div></div></div><div class="app-page" id="page-fixed"><div class="page-heading">固定費</div><div class="section"><h2>🏠 毎月の固定費</h2>
+<div class="fixed-summary"><div class="card"><div class="label">固定費合計</div><div class="amount expense" id="fixedTotal">¥0</div></div><div class="card"><div class="label">登録件数</div><div class="amount" id="fixedCount">0件</div></div></div>
+<form id="fixedForm"><div class="recurring-form-title" id="fixedFormTitle">固定費を登録</div>
+<input id="fixedEditId" type="hidden"/>
+<div class="row"><div class="field"><label class="field-label" for="fixedName">固定費名</label><input id="fixedName" placeholder="例：家賃" required="" type="text"/></div><div class="field"><label class="field-label" for="fixedAmount">毎月の金額</label><div class="moneyfield"><input class="money-input" id="fixedAmount" inputmode="numeric" placeholder="70,000" required="" type="text"/></div></div></div>
+<div class="row"><div class="field"><label class="field-label" for="fixedCategory">カテゴリ</label><select id="fixedCategory"><option>家賃</option><option>光熱費</option><option>通信費</option><option>保険</option><option>車</option><option>サブスク</option><option>その他</option></select></div><div class="field"><label class="field-label" for="fixedInterval">支払い周期</label><select id="fixedInterval"><option value="1">毎月</option><option value="2">2か月ごと</option><option value="3">3か月ごと</option><option value="6">6か月ごと</option><option value="12">1年ごと</option></select></div></div><div class="row fixed-start-row"><div class="field"><label class="field-label" for="fixedStartMonth">支払い基準月</label><input id="fixedStartMonth" type="month"></div></div>
+<button class="primary" id="fixedSubmit" type="submit">この固定費を登録</button><button class="secondary hidden" id="fixedCancel" style="margin-top:8px" type="button">編集をキャンセル</button>
+<div class="help">毎月ほぼ決まって出ていくお金をここで管理するよ。金額が変わったら「編集」から更新できるよ。</div></form>
+<div id="fixedList" style="margin-top:10px"></div></div></div></div><div class="app-page" id="page-cards"><div class="page-heading">カード</div><div class="section"><h2>💳 カード設定</h2><form id="cardForm"><input id="cardEditId" type="hidden"><div class="row"><div class="field"><label class="field-label">カード名</label><input id="cardName" placeholder="例：楽天カード" required></div><div class="field"><label class="field-label">支払口座</label><input id="cardAccount" placeholder="例：生活口座"></div></div><div class="row"><div class="field"><label class="field-label">締め日</label><input id="cardClosingDay" type="number" min="1" max="31" value="31" placeholder="例：31" required></div><div class="field"><label class="field-label">支払日</label><input id="cardPayDay" type="number" min="1" max="31" placeholder="例：27" required></div></div><div class="row"><div class="field"><label class="field-label">支払い時期</label><select id="cardPayOffset"><option value="1">翌月払い</option><option value="2">翌々月払い</option></select></div><div class="field"><label class="field-label">休日の場合</label><select id="cardHoliday"><option value="next">翌営業日</option><option value="prev">前営業日</option><option value="same">そのまま</option></select></div></div><button class="primary" type="submit">カードを登録</button></form><div id="cardList" style="margin-top:10px"></div></div><div class="section"><h2>🧾 カード明細</h2><div class="month"><button id="cardPrev" type="button">‹</button><strong id="cardMonthLabel"></strong><button id="cardNext" type="button">›</button></div><form id="cardTxnForm"><input id="cardTxnEditId" type="hidden"><div class="row"><div class="field"><label class="field-label">利用日</label><input id="cardTxnDate" type="date" required></div><div class="field"><label class="field-label">使用カード</label><select id="cardTxnCard" required></select></div></div><div class="row"><div class="field"><label class="field-label">利用先・内容</label><input id="cardTxnMemo" placeholder="例：スーパー"></div><div class="field"><label class="field-label">金額</label><div class="moneyfield"><input class="money-input" id="cardTxnAmount" inputmode="numeric" placeholder="10,000" required></div></div></div><button class="primary" type="submit">カード明細を追加</button><div class="help">カード利用は通常支出に重ねず、支払月の「カード引落予定」として管理するよ。</div></form><div class="card-month-summary"><div class="card"><div class="label">この月のカード利用</div><div class="amount" id="cardUsageTotal">¥0</div></div><div class="card"><div class="label">カード別</div><div id="cardUsageByCard" style="font-size:12px;line-height:1.7;margin-top:6px"></div></div></div><div class="card" style="margin-top:10px"><div class="label">表示月のカード引落予定</div><div class="amount expense" id="cardDueTotal">¥0</div></div><div id="cardTxnList" style="margin-top:10px"></div></div></div>
+<div class="calc-overlay hidden" id="calcOverlay" aria-hidden="true"><div class="calc-panel" role="dialog" aria-modal="true" aria-label="金額電卓"><div class="calc-title"><span>金額を計算</span><button class="calc-close" id="calcClose" type="button">×</button></div><div class="calc-display" id="calcDisplay">0</div><div class="calc-grid" id="calcGrid"><button class="calc-key" data-k="C" type="button">C</button><button class="calc-key" data-k="BS" type="button">⌫</button><button class="calc-key op" data-k="÷" type="button">÷</button><button class="calc-key op" data-k="×" type="button">×</button><button class="calc-key" data-k="7" type="button">7</button><button class="calc-key" data-k="8" type="button">8</button><button class="calc-key" data-k="9" type="button">9</button><button class="calc-key op" data-k="-" type="button">−</button><button class="calc-key" data-k="4" type="button">4</button><button class="calc-key" data-k="5" type="button">5</button><button class="calc-key" data-k="6" type="button">6</button><button class="calc-key op" data-k="+" type="button">＋</button><button class="calc-key" data-k="1" type="button">1</button><button class="calc-key" data-k="2" type="button">2</button><button class="calc-key" data-k="3" type="button">3</button><button class="calc-key op" data-k="=" type="button">＝</button><button class="calc-key wide" data-k="0" type="button">0</button><button class="calc-key" data-k="00" type="button">00</button><button class="calc-key done" data-k="DONE" type="button">決定</button></div></div></div><div class="app-page" id="page-settings"><div class="page-heading">設定</div><div class="settings-menu">
+<button class="settings-toggle" type="button" data-settings-target="settings-account"><span>☁️ アカウント・家族共有<small>同期・招待コード・ログアウト</small></span><span class="chev">›</span></button>
+<div class="settings-panel" id="settings-account"><div class="settings-card"><div class="card cloud-card"><div class="cloud-left"><div class="cloud-status"><span class="cloud-dot" id="cloudDot"></span><span id="cloudStatus">クラウド確認中…</span></div><div class="cloud-user" id="cloudUser"></div></div><button class="tiny-btn" id="logoutBtn" type="button">ログアウト</button></div><div class="card" id="householdSetup" style="margin-top:10px;display:none"><div style="font-weight:800">家族共有をはじめる</div><div class="sync-note">最初の1台は「家計簿を作る」。2台目は招待コードで参加してね。</div><div class="share-grid"><button class="primary" id="createHousehold" type="button">家計簿を作る</button><button class="secondary" id="showJoin" type="button">コードで参加</button></div><div id="joinArea" class="hidden" style="margin-top:10px"><input id="inviteInput" maxlength="8" placeholder="8桁の招待コード" style="text-transform:uppercase"><button class="primary" id="joinHousehold" type="button" style="margin-top:8px">この家計簿に参加</button></div></div><div class="card" id="sharePanel" style="margin-top:10px;display:none"><div style="font-weight:800">家族と共有</div><div class="sync-note">招待コードは24時間・1回だけ有効だよ。</div><button class="secondary" id="makeInvite" type="button" style="margin-top:10px;width:100%">招待コードを発行</button><div class="share-code hidden" id="inviteCode"></div><div class="sync-note" id="syncTime"></div></div></div></div>
+<button class="settings-toggle" type="button" data-settings-target="settings-design"><span>🎨 デザイン<small>テーマカラー・キャラクター</small></span><span class="chev">›</span></button>
+<div class="settings-panel" id="settings-design"><div class="settings-card"><div class="settings-title">カラーテーマ</div><div class="theme-grid" id="themeChoices"><button class="choice-btn" data-theme="beige">ベージュ</button><button class="choice-btn" data-theme="pink">ピンク</button><button class="choice-btn" data-theme="sage">セージ</button><button class="choice-btn" data-theme="blue">ブルーグレー</button><button class="choice-btn" data-theme="mono">モノトーン</button><button class="choice-btn" data-theme="dark">ダーク</button></div></div><div class="settings-card"><div class="settings-title">キャラクター</div><div class="character-preview" id="characterPreview"></div><div class="character-grid" id="characterChoices"></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input id="characterGrowth" type="checkbox" style="width:auto"> 貯金に合わせて成長演出を表示</label><div class="help">色とキャラクターは別々に選べるよ。デザイン設定はこの端末だけに保存されるよ。</div></div></div>
+<button class="settings-toggle" type="button" data-settings-target="settings-categories"><span>🏷️ カテゴリ管理<small>名前変更・追加・削除</small></span><span class="chev">›</span></button>
+<div class="settings-panel" id="settings-categories"><div class="settings-card"><div class="settings-title">支出カテゴリ</div><div id="expenseCategoryList"></div><div class="row"><input id="newExpenseCategory" placeholder="新しいカテゴリ"><button class="secondary" id="addExpenseCategory" type="button" style="width:auto">追加</button></div></div><div class="settings-card"><div class="settings-title">収入カテゴリ</div><div id="incomeCategoryList"></div><div class="row"><input id="newIncomeCategory" placeholder="新しいカテゴリ"><button class="secondary" id="addIncomeCategory" type="button" style="width:auto">追加</button></div><div class="help">カテゴリは家族で共有されるよ。</div></div></div>
+</div></div></div><nav aria-label="メインメニュー" class="bottom-nav"><button class="nav-btn active" data-page="home" type="button">🏠<span>ホーム</span></button><button class="nav-btn" data-page="ledger" type="button">📝<span>家計簿</span></button><button class="nav-btn" data-page="savings" type="button">💰<span>貯金・積立</span></button><button class="nav-btn" data-page="cards" type="button">💳<span>カード</span></button><button class="nav-btn" data-page="fixed" type="button">📌<span>固定費</span></button><button class="nav-btn" data-page="settings" type="button">⚙️<span>設定</span></button></nav>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const SUPABASE_URL="https://jjawamljxutiugulbwrq.supabase.co";
+const SUPABASE_KEY="sb_publishable_4hUiunFC2V962pe2Syo3ZQ_mSRszgww";
+const AUTH_STORAGE_KEY="mone_auth_session_v26";
+const LEGACY_AUTH_STORAGE_KEY="mone_auth_session_v25";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+  auth:{
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true,
+    storage:window.localStorage,
+    storageKey:AUTH_STORAGE_KEY
+  }
+});
+const HOUSEHOLD_KEY="kakeibo_household_id_v1";
+let currentUser=null,currentHousehold=null,syncTimer=null,suppressCloud=false,cloudReady=false;
+const CARD_KEY="money_cards_v1", CARD_TXN_KEY="money_card_txns_v1", CATEGORY_KEY="money_categories_v1";
+const CLOUD_KEYS=new Set(["money_manager_v2","money_recurring_v1","money_fixed_v1","money_goal_v1","money_goal_history_v1","money_saved_v2",CARD_KEY,CARD_TXN_KEY,CATEGORY_KEY]);
+const KEY="money_manager_v2";
+let memory={};
+function getStore(k){try{return localStorage.getItem(k)}catch(e){return memory[k]||null}}
+function setStore(k,v){try{localStorage.setItem(k,v)}catch(e){memory[k]=v}if(!suppressCloud&&cloudReady&&CLOUD_KEYS.has(k))queueCloudSave()}
+function yen(n){return "¥"+Number(n||0).toLocaleString("ja-JP")}
+function moneyNumber(v){const n=Number(String(v||"").replace(/[^0-9]/g,""));return Number.isFinite(n)?n:0}
+function formatMoneyInput(el){const digits=String(el.value||"").replace(/[^0-9]/g,"");el.value=digits?Number(digits).toLocaleString("ja-JP"):""}
+function setupMoneyInputs(){document.querySelectorAll(".money-input").forEach(el=>{formatMoneyInput(el);el.readOnly=true;el.inputMode="none";if(!el.dataset.calcReady){el.dataset.calcReady="1";el.addEventListener("click",()=>openCalculator(el));el.addEventListener("focus",()=>openCalculator(el))}})}
+let calcTarget=null,calcExpr="";
+function calcValue(expr){try{const t=expr.replace(/×/g,"*").replace(/÷/g,"/");if(!/^[0-9+\-*/ ]+$/.test(t)||!t.trim())return 0;const parts=t.match(/\d+|[+\-*/]/g)||[];if(!parts.length)return 0;let nums=[],ops=[];for(const z of parts){if(/^\d+$/.test(z))nums.push(Number(z));else ops.push(z)};if(nums.length!==ops.length+1)return nums[nums.length-1]||0;for(let i=0;i<ops.length;){if(ops[i]==="*"||ops[i]==="/"){const v=ops[i]==="*"?nums[i]*nums[i+1]:nums[i+1]===0?0:nums[i]/nums[i+1];nums.splice(i,2,v);ops.splice(i,1)}else i++}let v=nums[0]||0;for(let i=0;i<ops.length;i++)v=ops[i]==="+"?v+nums[i+1]:v-nums[i+1];return Math.max(0,Math.round(v))}catch(e){return 0}}
+function updateCalc(){$("calcDisplay").textContent=calcExpr||"0"}
+function openCalculator(el){if(calcTarget===el&&!$("calcOverlay").classList.contains("hidden"))return;calcTarget=el;calcExpr=String(moneyNumber(el.value)||"");$("calcOverlay").classList.remove("hidden");$("calcOverlay").setAttribute("aria-hidden","false");updateCalc();el.blur()}
+function closeCalculator(apply){if(apply&&calcTarget){const v=calcValue(calcExpr);calcTarget.value=v?String(v):"";formatMoneyInput(calcTarget);calcTarget.dispatchEvent(new Event("change",{bubbles:true}))}$("calcOverlay").classList.add("hidden");$("calcOverlay").setAttribute("aria-hidden","true");calcTarget=null;calcExpr=""}
+$("calcGrid").onclick=e=>{const b=e.target.closest(".calc-key");if(!b)return;const k=b.dataset.k;if(k==="C")calcExpr="";else if(k==="BS")calcExpr=calcExpr.slice(0,-1);else if(k==="="){const v=calcValue(calcExpr);calcExpr=v?String(v):""}else if(k==="DONE"){closeCalculator(true);return}else if(/[+\-×÷]/.test(k)){if(calcExpr&&!/[+\-×÷]$/.test(calcExpr))calcExpr+=k}else{if(calcExpr==="0")calcExpr="";calcExpr+=k}updateCalc()};
+$("calcClose").onclick=()=>closeCalculator(false);$("calcOverlay").addEventListener("click",e=>{if(e.target===$("calcOverlay"))closeCalculator(false)});
+function ym(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+let data=JSON.parse(getStore(KEY)||"[]");
+let categoryMigrated=false;data.forEach(x=>{if(x.category==="赤ちゃん"){x.category="楓理";categoryMigrated=true}});if(categoryMigrated)setStore(KEY,JSON.stringify(data));
+const REC_KEY="money_recurring_v1";
+let recurring=JSON.parse(getStore(REC_KEY)||"[]");
+const FIXED_KEY="money_fixed_v1";
+let fixedCosts=JSON.parse(getStore(FIXED_KEY)||"[]");
+let cards=JSON.parse(getStore(CARD_KEY)||"[]"), cardTxns=JSON.parse(getStore(CARD_TXN_KEY)||"[]");
+const GOAL_KEY="money_goal_v1", GOAL_HISTORY_KEY="money_goal_history_v1";
+let view=new Date();view.setDate(1);let type="expense";
+const DEFAULT_CATS={expense:["食費","日用品","家賃","光熱費","通信費","車","交通費","趣味","交際費","楓理","その他"],income:["給料","賞与","副収入","その他"]};
+let cats=(()=>{try{const v=JSON.parse(getStore(CATEGORY_KEY)||"null");return v&&Array.isArray(v.expense)&&Array.isArray(v.income)?v:JSON.parse(JSON.stringify(DEFAULT_CATS))}catch(e){return JSON.parse(JSON.stringify(DEFAULT_CATS))}})();
+let cardView=new Date();cardView.setDate(1);
+
+function save(){setStore(KEY,JSON.stringify(data))}
+function setType(t){type=t;$("expenseBtn").classList.toggle("active",t==="expense");$("incomeBtn").classList.toggle("active",t==="income");$("category").innerHTML=cats[t].map(x=>"<option>"+x+"</option>").join("")}
+function render(){
+ const key=ym(view), rows=data.filter(x=>x.date.slice(0,7)===key).sort((a,b)=>b.date.localeCompare(a.date));
+ $("monthLabel").textContent=view.getFullYear()+"年"+(view.getMonth()+1)+"月";$("ledgerMonthLabel").textContent=$("monthLabel").textContent;
+ const inc=rows.filter(x=>x.type==="income").reduce((s,x)=>s+x.amount,0), variableExp=rows.filter(x=>x.type==="expense").reduce((s,x)=>s+x.amount,0), fixedExp=fixedCosts.filter(x=>fixedApplies(x,view)).reduce((sum,x)=>sum+Number(x.amount||0),0), exp=variableExp+fixedExp;
+ $("income").textContent=yen(inc);$("expense").textContent=yen(exp);$("balance").textContent=yen(inc-exp);
+ $("list").innerHTML=rows.length?rows.map(x=>'<div class="item"><div class="left"><div class="cat">'+x.category+(x.memo?"・"+esc(x.memo):"")+'</div><div class="date">'+x.date+'</div></div><div class="right"><span class="'+x.type+'">'+(x.type==="income"?"+":"-")+yen(x.amount)+'</span><button class="edit-btn entryEdit" type="button" data-id="'+x.id+'">編集</button><button class="delete" type="button" data-id="'+x.id+'">×</button></div></div>').join(""):'<div class="empty">この月の明細はまだないよ</div>';
+ const fixedRows=fixedCosts.filter(x=>fixedApplies(x,view)).map(x=>({id:"fixed-"+x.id,type:"expense",amount:Number(x.amount||0),category:x.category,memo:x.name,date:(x.startMonth&&x.startMonth.slice(0,7)===key?x.startMonth+"-01":key+"-01"),isFixed:true}));
+ const homeRows=rows.concat(fixedRows).sort((a,b)=>b.date.localeCompare(a.date));
+ $("homeRecent").innerHTML=homeRows.length?homeRows.map(x=>'<div class="item"><div class="left"><div class="cat">'+esc(x.category)+(x.isFixed?'<span class="fixed-badge">固定費</span>':'')+(x.memo?'・'+esc(x.memo):'')+'</div><div class="date">'+x.date+'</div></div><div class="right"><span class="'+x.type+'">'+(x.type==="income"?'+':'-')+yen(x.amount)+'</span></div></div>').join(''):'<div class="empty">この月の明細はまだないよ</div>';
+ renderCalendar(rows);if(typeof renderCards==="function")renderCards();
+}
+
+let selectedDate=null;
+function renderCalendar(rows){
+ const y=view.getFullYear(),m=view.getMonth(),first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
+ let html="";for(let i=0;i<first;i++)html+='<div class="day blank"></div>';
+ const today=new Date(),todayKey=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+ for(let d=1;d<=last;d++){const key=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"),dr=rows.filter(x=>x.date===key),inc=dr.filter(x=>x.type==="income").reduce((a,x)=>a+x.amount,0),exp=dr.filter(x=>x.type==="expense").reduce((a,x)=>a+x.amount,0);
+ html+='<button type="button" class="day'+(exp?' hasexpense':'')+(key===todayKey?' today':'')+(key===selectedDate?' selected':'')+'" data-date="'+key+'"><div class="daynum">'+d+'</div>'+(exp?'<div class="daytotal">-'+yen(exp)+'</div>':'')+(inc?'<div class="daymoney in">+'+yen(inc)+'</div>':'')+'</button>';}
+ $("calgrid").innerHTML=html;if(selectedDate&&selectedDate.slice(0,7)===ym(view))renderDay(selectedDate);else $("daydetails").innerHTML='<div class="empty">日付をタップすると、その日の明細が見られるよ</div>';
+}
+function renderDay(date){const rows=data.filter(x=>x.date===date),exp=rows.filter(x=>x.type==="expense").reduce((a,x)=>a+x.amount,0),inc=rows.filter(x=>x.type==="income").reduce((a,x)=>a+x.amount,0);$("daydetails").innerHTML='<div class="section"><h2>'+Number(date.slice(5,7))+'月'+Number(date.slice(8,10))+'日</h2><div class="card" style="margin-bottom:10px"><div class="label">この日の合計</div><div style="display:flex;gap:18px;margin-top:7px;font-weight:700"><span class="expense">支出 '+yen(exp)+'</span><span class="income">収入 '+yen(inc)+'</span></div></div>'+(rows.length?rows.map(x=>'<div class="item"><div class="left"><div class="cat">'+x.category+(x.memo?'・'+esc(x.memo):'')+'</div></div><div class="right"><span class="'+x.type+'">'+(x.type==="income"?'+':'-')+yen(x.amount)+'</span><button class="edit-btn dayedit" type="button" data-id="'+x.id+'">編集</button><button class="delete daydelete" type="button" data-id="'+x.id+'">×</button></div></div>').join(''):'<div class="empty">この日の明細はまだないよ</div>')+'</div>';}
+function setView(v){const cal=v==="calendar";$("calendarView").classList.toggle("hidden",!cal);$("monthlyView").classList.toggle("hidden",cal);$("calendarTab").classList.toggle("active",cal);$("monthlyTab").classList.toggle("active",!cal);}
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function parseDateOnly(v){const a=String(v).split("-").map(Number);return new Date(a[0],a[1]-1,a[2],12)}
+function monthsUntil(dateStr){const now=new Date(),target=parseDateOnly(dateStr);if(target<=now)return 1;let months=(target.getFullYear()-now.getFullYear())*12+(target.getMonth()-now.getMonth());if(target.getDate()>now.getDate())months+=1;return Math.max(1,months)}
+function cycleMonths(x){return x.unit==="year"?Number(x.interval)*12:Number(x.interval)}
+function savedAmount(x){return Math.max(0,Number(x.saved||0))}
+function remainingAmount(x){return Math.max(0,Number(x.amount)-savedAmount(x))}
+function monthlyReserve(x){return Math.ceil(remainingAmount(x)/monthsUntil(x.nextDate))}
+function saveRecurring(){setStore(REC_KEY,JSON.stringify(recurring))}
+function fmtDate(v){const d=parseDateOnly(v);return d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日"}
+function renderRecurring(){
+ const total=recurring.reduce((s,x)=>s+monthlyReserve(x),0);$("reserveTotal").textContent=yen(total);$("recurringCount").textContent=recurring.length+"件";
+ const now=new Date();now.setHours(0,0,0,0);
+ $("recurringList").innerHTML=recurring.length?recurring.slice().sort((a,b)=>a.nextDate.localeCompare(b.nextDate)).map(x=>{const d=parseDateOnly(x.nextDate),days=Math.ceil((d-now)/86400000),m=monthsUntil(x.nextDate),cycle=x.interval+(x.unit==="year"?"年":"か月")+"ごと",saved=savedAmount(x),remain=remainingAmount(x),pct=Math.min(100,Number(x.amount)?saved/Number(x.amount)*100:0),hist=(x.history||[]).slice().reverse().slice(0,3);return '<div class="recurring-item"><div class="recurring-head"><div><div class="recurring-name">'+esc(x.name)+'</div><div class="recurring-meta">'+esc(x.category)+' ・ '+cycle+'<br>次回支払日 '+fmtDate(x.nextDate)+(days>=0?'（あと'+days+'日）':'（期限超過）')+'</div></div><div style="text-align:right"><div class="label">目標額</div><strong>'+yen(x.amount)+'</strong></div></div><div class="status-grid"><div class="status-box"><div class="k">積立済み</div><div class="v income">'+yen(saved)+'</div></div><div class="status-box"><div class="k">あと必要</div><div class="v">'+yen(remain)+'</div></div></div><div class="progress"><div style="width:'+pct.toFixed(1)+'%"></div></div><div class="recurring-meta">目標の '+pct.toFixed(1)+'% まで積立済み</div><div class="reserve-label">次回までに毎月</div><div class="reserve-value '+(days<31?'warn':'ok')+'">'+yen(monthlyReserve(x))+' を積み立て</div><div class="recurring-meta">残り約'+m+'か月で計算</div><div class="deposit-row"><input class="money-input recDepositAmount" inputmode="numeric" placeholder="今月いくら貯めた？" data-id="'+x.id+'"><button type="button" class="secondary recDeposit" data-id="'+x.id+'">＋ 積立</button></div>'+(hist.length?'<div class="history">最近の積立：'+hist.map(h=>esc(h.date)+' '+yen(h.amount)).join(' ／ ')+'</div>':'')+'<div class="rec-actions"><button type="button" class="secondary recPaid" data-id="'+x.id+'">支払済みにする</button><button type="button" class="secondary recDelete" data-id="'+x.id+'">削除</button></div></div>'}).join(''):'<div class="empty">定期支出はまだ登録されていないよ</div>'; 
+function switchPage(name){
+ document.querySelectorAll(".app-page").forEach(p=>p.classList.toggle("active",p.id==="page-"+name));
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.page)));
+$("ledgerPrev").onclick=()=>$("prev").click();
+$("ledgerNext").onclick=()=>$("next").click();
+
+setupMoneyInputs();
+}
+function advanceDate(x){const d=parseDateOnly(x.nextDate),n=Number(x.interval);if(x.unit==="year")d.setFullYear(d.getFullYear()+n);else d.setMonth(d.getMonth()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function goalAmount(){const v=Number(getStore(GOAL_KEY)||1000000);return v>0?v:1000000}
+function goalHistory(){try{return JSON.parse(getStore(GOAL_HISTORY_KEY)||"[]")}catch(e){return []}}
+function renderGoal(){const saved=Number(getStore("money_saved_v2")||0),goal=goalAmount(),pct=Math.min(100,goal?saved/goal*100:0),hist=goalHistory().slice().reverse().slice(0,3);$("goalAmountText").textContent=yen(goal);$("goalBar").style.width=pct+"%";$("goalPercent").textContent="現在の貯金額 "+yen(saved)+"（"+pct.toFixed(1)+"%）";$("goalHistory").innerHTML=hist.length?"最近の貯金："+hist.map(h=>esc(h.date)+" "+yen(h.amount)).join(" ／ "):"";if(typeof updateCharacterStage==="function")updateCharacterStage()}
+function saveGoal(){const add=moneyNumber($("savedInput").value);if(!add){alert("今回貯金した金額を入力してね");return}const saved=Number(getStore("money_saved_v2")||0)+add;setStore("money_saved_v2",String(saved));const hist=goalHistory();hist.push({date:new Date().toISOString().slice(0,10),amount:add});setStore(GOAL_HISTORY_KEY,JSON.stringify(hist));$("savedInput").value="";renderGoal()}
+function changeGoal(){const v=moneyNumber($("goalInput").value);if(!v){alert("目標金額を入力してね");return}setStore(GOAL_KEY,String(v));$("goalInput").value="";renderGoal()}
+function saveFixed(){setStore(FIXED_KEY,JSON.stringify(fixedCosts))}
+function fixedApplies(x,d){const interval=Number(x.interval||1);if(interval<=1)return true;if(!x.startMonth)return false;const [y,m]=x.startMonth.split("-").map(Number),diff=(d.getFullYear()-y)*12+(d.getMonth()+1-m);return diff>=0&&diff%interval===0}
+function renderFixed(){const active=fixedCosts.filter(x=>fixedApplies(x,view)),total=active.reduce((sum,x)=>sum+Number(x.amount||0),0);$("fixedTotal").textContent=yen(total);$("fixedCount").textContent=fixedCosts.length+"件";$("fixedList").innerHTML=fixedCosts.length?fixedCosts.map(x=>{const n=Number(x.interval||1),cycle=n===1?"毎月":n===12?"1年ごと":n+"か月ごと",reserve=Math.ceil(Number(x.amount||0)/n);return '<div class="fixed-item"><div class="fixed-head"><div><div class="fixed-name">'+esc(x.name)+'</div><div class="fixed-meta">'+esc(x.category)+'・'+cycle+(n>1?'・月あたり確保 '+yen(reserve):'')+'</div></div><strong class="expense">'+yen(x.amount)+'</strong></div><div class="fixed-actions"><button type="button" class="secondary fixedEdit" data-id="'+x.id+'">編集</button><button type="button" class="secondary fixedDelete" data-id="'+x.id+'">削除</button></div></div>'}).join(''):'<div class="empty">固定費はまだ登録されていないよ</div>';setupMoneyInputs()}
+function resetFixedForm(){$("fixedForm").reset();$("fixedEditId").value="";$("fixedInterval").value="1";$("fixedFormTitle").textContent="固定費を登録";$("fixedSubmit").textContent="この固定費を登録";$("fixedCancel").classList.add("hidden")}
+function startFixedEdit(x){$("fixedEditId").value=x.id;$("fixedName").value=x.name;$("fixedAmount").value=String(x.amount);formatMoneyInput($("fixedAmount"));$("fixedCategory").value=x.category;$("fixedInterval").value=String(x.interval||1);$("fixedStartMonth").value=x.startMonth||"";$("fixedFormTitle").textContent="固定費を編集";$("fixedSubmit").textContent="変更を保存";$("fixedCancel").classList.remove("hidden");$("fixedForm").scrollIntoView({behavior:"smooth",block:"center"})}
+function isHoliday(d){
+ const y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate();
+ if(d.getDay()===0||d.getDay()===6)return true;
+ const fixed=[y+"-1-1",y+"-2-11",y+"-2-23",y+"-4-29",y+"-5-3",y+"-5-4",y+"-5-5",y+"-8-11",y+"-11-3",y+"-11-23"];
+ if(fixed.includes(y+"-"+m+"-"+day))return true;
+ const nthMon=(mo,n)=>{let x=new Date(y,mo-1,1);return 1+(8-x.getDay())%7+(n-1)*7};
+ return (m===1&&day===nthMon(1,2))||(m===7&&day===nthMon(7,3))||(m===9&&day===nthMon(9,3))||(m===10&&day===nthMon(10,2));
+}
+function payday(){
+ const now=new Date();let d=new Date(now.getFullYear(),now.getMonth(),25);if(now>=d)d=new Date(now.getFullYear(),now.getMonth()+1,25);
+ while(isHoliday(d))d.setDate(d.getDate()-1);return d;
+}
+function renderPayday(){
+ const d=payday(),now=new Date(),a=new Date(now.getFullYear(),now.getMonth(),now.getDate()),b=new Date(d.getFullYear(),d.getMonth(),d.getDate()),days=Math.round((b-a)/86400000);
+ $("paydayText").textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";$("paydayCountdown").textContent=days===0?"今日が給料日よ":"あと "+days+" 日";
+}
+
+
+let editingEntryId=null;
+function resetEntryForm(){editingEntryId=null;$("form").reset();$("date").value=new Date().toISOString().slice(0,10);$("cardTxnDate").value=new Date().toISOString().slice(0,10);setType(type);$("entrySubmit").textContent="追加する";$("entryCancel").classList.add("hidden")}
+function startEntryEdit(id){const x=data.find(v=>v.id===id);if(!x)return;editingEntryId=id;setType(x.type);$("amountInput").value=String(x.amount);formatMoneyInput($("amountInput"));$("category").value=x.category;$("memo").value=x.memo||"";$("date").value=x.date;$("entrySubmit").textContent="変更を保存";$("entryCancel").classList.remove("hidden");switchPage("ledger");$("form").scrollIntoView({behavior:"smooth",block:"center"})}
+$("expenseBtn").onclick=()=>setType("expense");$("incomeBtn").onclick=()=>setType("income");
+$("prev").onclick=()=>{view.setMonth(view.getMonth()-1);render()};$("next").onclick=()=>{view.setMonth(view.getMonth()+1);render()};
+$("form").onsubmit=e=>{e.preventDefault();const amount=moneyNumber($("amountInput").value);if(!amount)return;const entry={type,amount,category:$("category").value,memo:$("memo").value.trim(),date:$("date").value};if(editingEntryId){const x=data.find(v=>v.id===editingEntryId);if(x)Object.assign(x,entry)}else data.push({id:String(Date.now()),...entry});save();resetEntryForm();render();if(selectedDate)renderDay(selectedDate)};$("entryCancel").onclick=resetEntryForm;
+$("list").onclick=e=>{const edit=e.target.closest(".entryEdit"),del=e.target.closest(".delete");if(edit){startEntryEdit(edit.dataset.id);return}if(del){data=data.filter(x=>x.id!==del.dataset.id);save();render()}};
+$("saveGoal").onclick=saveGoal;$("changeGoal").onclick=changeGoal;
+$("fixedForm").onsubmit=e=>{e.preventDefault();const name=$("fixedName").value.trim(),amount=moneyNumber($("fixedAmount").value),category=$("fixedCategory").value,interval=Number($("fixedInterval").value||1),startMonth=$("fixedStartMonth").value,id=$("fixedEditId").value;if(!name||!amount)return;if(interval>1&&!startMonth){alert("2か月ごと等の場合は支払い基準月を選んでね");return}if(id){const x=fixedCosts.find(x=>x.id===id);if(x)Object.assign(x,{name,amount,category,interval,startMonth})}else fixedCosts.push({id:String(Date.now()),name,amount,category,interval,startMonth});saveFixed();resetFixedForm();renderFixed();render()};
+$("fixedCancel").onclick=resetFixedForm;
+$("fixedList").onclick=e=>{const edit=e.target.closest(".fixedEdit"),del=e.target.closest(".fixedDelete");if(edit){const x=fixedCosts.find(x=>x.id===edit.dataset.id);if(x)startFixedEdit(x);return}if(del){fixedCosts=fixedCosts.filter(x=>x.id!==del.dataset.id);saveFixed();renderFixed();render()}};
+$("monthlyTab").onclick=()=>setView("monthly");$("calendarTab").onclick=()=>setView("calendar");
+$("calgrid").onclick=e=>{const b=e.target.closest(".day[data-date]");if(!b)return;selectedDate=b.dataset.date;render();renderDay(selectedDate)};$("daydetails").onclick=e=>{const edit=e.target.closest(".dayedit"),del=e.target.closest(".daydelete");if(edit){startEntryEdit(edit.dataset.id);return}if(del){data=data.filter(x=>x.id!==del.dataset.id);save();render();if(selectedDate)renderDay(selectedDate)}};
+$("recurringForm").onsubmit=e=>{e.preventDefault();const amount=moneyNumber($("recAmount").value),interval=Number($("recInterval").value);if(!amount||!interval||!$("recNext").value)return;recurring.push({id:String(Date.now()),name:$("recName").value.trim(),amount,unit:$("recUnit").value,interval,category:$("recCategory").value,nextDate:$("recNext").value,saved:0,history:[]});saveRecurring();$("recurringForm").reset();$("recInterval").value="12";renderRecurring()};
+$("recurringList").onclick=e=>{const del=e.target.closest(".recDelete"),paid=e.target.closest(".recPaid"),dep=e.target.closest(".recDeposit");if(del){recurring=recurring.filter(x=>x.id!==del.dataset.id);saveRecurring();renderRecurring();return}if(dep){const x=recurring.find(x=>x.id===dep.dataset.id),inp=$("recurringList").querySelector('.recDepositAmount[data-id="'+dep.dataset.id+'"]'),amount=moneyNumber(inp?inp.value:"");if(!x||!amount)return;const add=Math.min(amount,remainingAmount(x));x.saved=savedAmount(x)+add;x.history=x.history||[];x.history.push({date:new Date().toISOString().slice(0,10),amount:add});saveRecurring();renderRecurring();return}if(paid){const x=recurring.find(x=>x.id===paid.dataset.id);if(!x)return;data.push({id:String(Date.now()),type:"expense",amount:Number(x.amount),category:x.category,memo:x.name,date:x.nextDate});x.nextDate=advanceDate(x);x.saved=0;x.history=[];save();saveRecurring();render();renderRecurring()}};
+
+
+let receiptParsed=null;
+function normalizeDigits(t){return String(t||"").replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/，/g,",").replace(/￥/g,"¥")}
+function parseReceiptText(raw){
+ const text=normalizeDigits(raw), lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ let amount=0, date="", store="";
+ const amountCandidates=[];
+ lines.forEach((line,i)=>{
+   const nums=[...line.matchAll(/(?:¥|￥)?\s*([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{2,7})\s*(?:円)?/g)].map(m=>Number(m[1].replace(/,/g,""))).filter(n=>n>0&&n<10000000);
+   if(nums.length){const score=/(合計|総額|お買上|お買い上げ|お支払|支払額|現計|TOTAL|Total|total)/.test(line)?100:0;nums.forEach(n=>amountCandidates.push({n,score:score+i/100}))}
+ });
+ if(amountCandidates.length){amountCandidates.sort((a,b)=>b.score-a.score||b.n-a.n);amount=amountCandidates[0].n}
+ const dm=text.match(/(20\d{2})[年\/\.\-]\s*(\d{1,2})[月\/\.\-]\s*(\d{1,2})日?/);
+ if(dm){date=dm[1]+"-"+String(dm[2]).padStart(2,"0")+"-"+String(dm[3]).padStart(2,"0")}
+ const skip=/(領収|レシート|TEL|電話|〒|日時|担当|登録|No\.|NO\.|合計|お買上|支払|現計|釣銭|お釣|税込|税率|カード|クレジット)/i;
+ store=lines.find(x=>x.length>=2&&x.length<=30&&!skip.test(x)&&!/^[-=＊*\d\s:/.]+$/.test(x))||"";
+ return {amount,date,store,raw:text};
+}
+function clearReceipt(){receiptParsed=null;$("receiptFile").value="";$("receiptPreview").src="";$("receiptPreview").classList.add("hidden");$("receiptResult").classList.add("hidden");$("receiptProgress").classList.add("hidden");$("receiptStatus").textContent="レシートを選ぶと、日付・合計金額・お店を読み取って明細に入れるわよ。登録前に内容を確認できるよ。"}
+$("receiptFile").addEventListener("change",async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ const url=URL.createObjectURL(file);$("receiptPreview").src=url;$("receiptPreview").classList.remove("hidden");$("receiptResult").classList.add("hidden");$("receiptProgress").classList.remove("hidden");$("receiptProgress").firstElementChild.style.width="5%";$("receiptStatus").textContent="レシートを読み取っているよ…（初回は少し時間がかかることがあるよ）";
+ try{
+   if(!window.Tesseract)throw new Error("OCR library unavailable");
+   const result=await Tesseract.recognize(file,"jpn+eng",{logger:m=>{if(m.status==="recognizing text")$("receiptProgress").firstElementChild.style.width=Math.round((m.progress||0)*100)+"%"}});
+   receiptParsed=parseReceiptText(result.data.text||"");
+   $("receiptRaw").value=receiptParsed.raw;
+   $("receiptSummary").innerHTML="お店："+esc(receiptParsed.store||"読み取れず")+"<br>日付："+esc(receiptParsed.date||"読み取れず")+"<br>合計："+(receiptParsed.amount?yen(receiptParsed.amount):"読み取れず");
+   $("receiptResult").classList.remove("hidden");$("receiptStatus").textContent="読み取り完了。内容を確認して『明細に反映』を押してね。";$("receiptProgress").firstElementChild.style.width="100%";
+ }catch(err){$("receiptStatus").textContent="読み取りに失敗したよ。通信状態を確認するか、明るい場所でレシート全体が写るように撮り直してみてね。";$("receiptProgress").classList.add("hidden")}
+});
+$("applyReceipt").onclick=()=>{if(!receiptParsed)return;setType("expense");if(receiptParsed.amount){$("amountInput").value=String(receiptParsed.amount);formatMoneyInput($("amountInput"))}if(receiptParsed.date)$("date").value=receiptParsed.date;if(receiptParsed.store)$("memo").value=receiptParsed.store;$("form").scrollIntoView({behavior:"smooth",block:"center"})};
+$("clearReceipt").onclick=clearReceipt;
+
+function saveCards(){setStore(CARD_KEY,JSON.stringify(cards));setStore(CARD_TXN_KEY,JSON.stringify(cardTxns))}
+function daysInMonth(y,m){return new Date(y,m,0).getDate()}
+function adjustedPayDate(card,y,m){let d=new Date(y,m-1,Math.min(Number(card.payDay),daysInMonth(y,m)));if(card.holiday!=="same")while(isHoliday(d))d.setDate(d.getDate()+(card.holiday==="prev"?-1:1));return d}
+function cardDueDate(txn,card){const d=parseDateOnly(txn.date),close=Number(card.closingDay||31);let baseY=d.getFullYear(),baseM=d.getMonth()+1;if(d.getDate()>Math.min(close,daysInMonth(baseY,baseM))){baseM++;if(baseM>12){baseM=1;baseY++}}let m=baseM+Number(card.payOffset||1),y=baseY;while(m>12){m-=12;y++}return adjustedPayDate(card,y,m)}
+function renderCards(){const sel=$("cardTxnCard");sel.innerHTML=cards.length?cards.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join(''):'<option value="">カードを先に登録してね</option>';$("cardList").innerHTML=cards.length?cards.map(c=>'<div class="card-item"><strong>'+esc(c.name)+'</strong><div class="card-meta">締め '+c.closingDay+'日 ／ 支払 '+c.payDay+'日 ／ '+(Number(c.payOffset||1)===1?'翌月':'翌々月')+'<br>支払口座：'+esc(c.account||'未設定')+'</div><button class="secondary cardDelete" data-id="'+c.id+'" type="button" style="margin-top:8px">削除</button></div>').join(''):'<div class="empty">カードはまだ登録されていないよ</div>';
+ const month=ym(cardView);$("cardMonthLabel").textContent=cardView.getFullYear()+"年"+(cardView.getMonth()+1)+"月";const monthTxns=cardTxns.filter(t=>String(t.date).slice(0,7)===month);const usage=monthTxns.reduce((a,t)=>a+Number(t.amount||0),0);$("cardUsageTotal").textContent=yen(usage);$("cardUsageByCard").innerHTML=cards.length?cards.map(c=>esc(c.name)+" "+yen(monthTxns.filter(t=>t.cardId===c.id).reduce((a,t)=>a+Number(t.amount||0),0))).join("<br>"):"カード未登録";const due=cardTxns.filter(t=>{const c=cards.find(c=>c.id===t.cardId);return c&&ym(cardDueDate(t,c))===month}).reduce((a,t)=>a+Number(t.amount||0),0);$("cardDueTotal").textContent=yen(due);$("cardTxnList").innerHTML=monthTxns.length?monthTxns.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{const c=cards.find(c=>c.id===t.cardId),dd=c?cardDueDate(t,c):null;return '<div class="card-item"><div class="fixed-head"><div><strong>'+esc(t.memo||'カード利用')+'</strong><div class="card-meta">'+esc(c?c.name:'削除済みカード')+'・'+t.date+(dd?'<br>引落予定 '+fmtDate(dd.getFullYear()+"-"+String(dd.getMonth()+1).padStart(2,"0")+"-"+String(dd.getDate()).padStart(2,"0")):'')+'</div></div><strong class="expense">'+yen(t.amount)+'</strong></div><button class="secondary cardTxnDelete" data-id="'+t.id+'" type="button" style="margin-top:8px">削除</button></div>'}).join(''):'<div class="empty">この月のカード明細はまだないよ</div>';setupMoneyInputs()}
+$("cardForm").onsubmit=e=>{e.preventDefault();const name=$("cardName").value.trim(),closingDay=Number($("cardClosingDay").value),payDay=Number($("cardPayDay").value);if(!name||!closingDay||!payDay)return;cards.push({id:String(Date.now()),name,account:$("cardAccount").value.trim(),closingDay,payDay,payOffset:Number($("cardPayOffset").value),holiday:$("cardHoliday").value});saveCards();$("cardForm").reset();renderCards()};
+$("cardTxnForm").onsubmit=e=>{e.preventDefault();const amount=moneyNumber($("cardTxnAmount").value),cardId=$("cardTxnCard").value;if(!amount||!cardId)return;cardTxns.push({id:String(Date.now()),date:$("cardTxnDate").value,cardId,memo:$("cardTxnMemo").value.trim(),amount});saveCards();$("cardTxnForm").reset();$("cardTxnDate").value=new Date().toISOString().slice(0,10);renderCards()};
+$("cardList").onclick=e=>{const b=e.target.closest(".cardDelete");if(!b)return;if(cardTxns.some(t=>t.cardId===b.dataset.id)){alert("このカードには明細があるため、先にカード明細を削除してね");return}cards=cards.filter(c=>c.id!==b.dataset.id);saveCards();renderCards()};
+$("cardTxnList").onclick=e=>{const b=e.target.closest(".cardTxnDelete");if(!b)return;cardTxns=cardTxns.filter(t=>t.id!==b.dataset.id);saveCards();renderCards()};
+function cloudPayload(){return {entries:data,fixedCosts,recurring,cards,cardTxns,goal:Number(getStore(GOAL_KEY)||1000000),saved:Number(getStore("money_saved_v2")||0),goalHistory:goalHistory(),categories:cats}}
+function setCloudStatus(text,state){$("cloudStatus").textContent=text;$("cloudDot").className="cloud-dot"+(state?" "+state:"")}
+function queueCloudSave(){clearTimeout(syncTimer);setCloudStatus("同期中…","busy");syncTimer=setTimeout(saveCloud,500)}
+async function saveCloud(){if(!currentHousehold||!currentUser)return;const {error}=await sb.from("household_data").update({data:cloudPayload(),updated_at:new Date().toISOString()}).eq("household_id",currentHousehold);if(error){setCloudStatus("同期エラー","");console.error(error);return}setCloudStatus("同期済み","ok");$("syncTime").textContent="最終同期："+new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})}
+function applyCloudPayload(v){if(!v||typeof v!=="object")return;suppressCloud=true;data=Array.isArray(v.entries)?v.entries:data;fixedCosts=Array.isArray(v.fixedCosts)?v.fixedCosts:fixedCosts;recurring=Array.isArray(v.recurring)?v.recurring:recurring;cards=Array.isArray(v.cards)?v.cards:cards;cardTxns=Array.isArray(v.cardTxns)?v.cardTxns:cardTxns;if(v.categories&&Array.isArray(v.categories.expense)&&Array.isArray(v.categories.income))cats=v.categories;if(v.goal!=null)setStore(GOAL_KEY,String(v.goal));if(v.saved!=null)setStore("money_saved_v2",String(v.saved));if(Array.isArray(v.goalHistory))setStore(GOAL_HISTORY_KEY,JSON.stringify(v.goalHistory));setStore(KEY,JSON.stringify(data));setStore(FIXED_KEY,JSON.stringify(fixedCosts));setStore(REC_KEY,JSON.stringify(recurring));setStore(CARD_KEY,JSON.stringify(cards));setStore(CARD_TXN_KEY,JSON.stringify(cardTxns));setStore(CATEGORY_KEY,JSON.stringify(cats));suppressCloud=false;render();renderGoal();renderFixed();renderRecurring();renderCards()}
+async function loadCloud(){if(!currentHousehold)return;setCloudStatus("読み込み中…","busy");const {data:row,error}=await sb.from("household_data").select("data,updated_at").eq("household_id",currentHousehold).single();if(error){setCloudStatus("読み込みエラー","");console.error(error);return}applyCloudPayload(row.data);cloudReady=true;setCloudStatus("同期済み","ok");$("sharePanel").style.display="block";$("householdSetup").style.display="none";if(row.updated_at)$("syncTime").textContent="最終同期："+new Date(row.updated_at).toLocaleString("ja-JP")}
+async function discoverHousehold(){let id=getStore(HOUSEHOLD_KEY);if(id){currentHousehold=id;await loadCloud();return}const {data:rows,error}=await sb.from("households").select("id").limit(1);if(!error&&rows&&rows.length){currentHousehold=rows[0].id;setStore(HOUSEHOLD_KEY,currentHousehold);await loadCloud();return}cloudReady=false;$("householdSetup").style.display="block";$("sharePanel").style.display="none";setCloudStatus("家計簿を設定してね","")}
+async function afterLogin(user){currentUser=user;$("authOverlay").classList.add("hidden");$("cloudUser").textContent=user.email||"ログイン中";await discoverHousehold()}
+function migrateLegacyAuthSession(){
+  try{
+    if(!localStorage.getItem(AUTH_STORAGE_KEY)){
+      const legacy=localStorage.getItem(LEGACY_AUTH_STORAGE_KEY);
+      if(legacy)localStorage.setItem(AUTH_STORAGE_KEY,legacy);
+    }
+  }catch(e){console.warn("auth storage migration skipped",e)}
+}
+let authRestorePromise=null;
+async function restoreAuthSession(){
+  if(authRestorePromise)return authRestorePromise;
+  authRestorePromise=(async()=>{
+    try{
+      let {data:{session},error}=await sb.auth.getSession();
+      if(error)console.error("session restore error",error);
+      // 保存済みセッションがあるのに期限切れの場合は、refresh token から復元を試す
+      if(!session){
+        try{
+          const raw=localStorage.getItem(AUTH_STORAGE_KEY);
+          if(raw){
+            const refreshed=await sb.auth.refreshSession();
+            if(!refreshed.error)session=refreshed.data.session;
+          }
+        }catch(e){console.warn("session refresh skipped",e)}
+      }
+      if(session?.user){
+        await afterLogin(session.user);
+        return true;
+      }
+      currentUser=null;
+      $("authOverlay").classList.remove("hidden");
+      return false;
+    }finally{authRestorePromise=null}
+  })();
+  return authRestorePromise;
+}
+async function initAuth(){
+  migrateLegacyAuthSession();
+  await restoreAuthSession();
+}
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_OUT"){
+    currentUser=null;currentHousehold=null;cloudReady=false;
+    $("authOverlay").classList.remove("hidden");
+    return;
+  }
+  if((event==="INITIAL_SESSION"||event==="SIGNED_IN"||event==="TOKEN_REFRESHED")&&session?.user){
+    currentUser=session.user;
+    $("authOverlay").classList.add("hidden");
+    $("cloudUser").textContent=session.user.email||"ログイン中";
+  }
+});
+async function resumeAuth(){
+  if(document.visibilityState==="hidden")return;
+  await restoreAuthSession();
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resumeAuth()});
+window.addEventListener("pageshow",()=>resumeAuth());
+window.addEventListener("focus",()=>resumeAuth());
+$("showSignup").onclick=()=>{$("loginView").classList.add("hidden");$("signupView").classList.remove("hidden");$("authMsg").textContent=""};
+$("backLogin").onclick=()=>{$("signupView").classList.add("hidden");$("loginView").classList.remove("hidden");$("authMsg").textContent=""};
+$("loginForm").onsubmit=async e=>{e.preventDefault();const email=$("authEmail").value.trim(),password=$("authPassword").value;$("authMsg").textContent="ログイン中…";const {data:r,error}=await sb.auth.signInWithPassword({email,password});if(error){$("authMsg").textContent="ログインできなかったよ："+error.message;return}$("authMsg").textContent="";await afterLogin(r.user)};
+$("signupForm").onsubmit=async e=>{e.preventDefault();const email=$("signupEmail").value.trim(),password=$("signupPassword").value,password2=$("signupPassword2").value;if(password.length<6){$("authMsg").textContent="パスワードは6文字以上にしてね";return}if(password!==password2){$("authMsg").textContent="確認用パスワードが一致していないよ";return}$("authMsg").textContent="登録中…";const {data:r,error}=await sb.auth.signUp({email,password});if(error){$("authMsg").textContent="登録できなかったよ："+error.message;return}if(r.session&&r.user){await afterLogin(r.user)}else $("authMsg").textContent="登録できたよ。確認メールのリンクを開いてからログインしてね。"};
+$("logoutBtn").onclick=async()=>{await sb.auth.signOut();currentUser=null;currentHousehold=null;cloudReady=false;$("authOverlay").classList.remove("hidden");$("householdSetup").style.display="none";$("sharePanel").style.display="none"};
+$("showJoin").onclick=()=>$("joinArea").classList.toggle("hidden");
+$("createHousehold").onclick=async()=>{setCloudStatus("家計簿を作成中…","busy");const {data:id,error}=await sb.rpc("create_my_household",{household_name:"わが家の家計簿"});if(error){alert("作成できなかったよ："+error.message);setCloudStatus("作成エラー","");return}currentHousehold=id;setStore(HOUSEHOLD_KEY,id);cloudReady=true;await saveCloud();await loadCloud()};
+$("joinHousehold").onclick=async()=>{const code=$("inviteInput").value.trim().toUpperCase();if(!code)return;setCloudStatus("参加中…","busy");const {data:id,error}=await sb.rpc("join_household_with_code",{invite_code:code});if(error){alert("参加できなかったよ："+error.message);setCloudStatus("参加エラー","");return}currentHousehold=id;setStore(HOUSEHOLD_KEY,id);await loadCloud()};
+$("makeInvite").onclick=async()=>{if(!currentHousehold)return;const {data:code,error}=await sb.rpc("create_household_invite",{target_household:currentHousehold});if(error){alert("招待コードを作れなかったよ："+error.message);return}$("inviteCode").textContent=code;$("inviteCode").classList.remove("hidden")};
+
+
+$("cardPrev").onclick=()=>{cardView.setMonth(cardView.getMonth()-1);renderCards()};$("cardNext").onclick=()=>{cardView.setMonth(cardView.getMonth()+1);renderCards()};
+function saveCategories(){setStore(CATEGORY_KEY,JSON.stringify(cats));renderCategorySettings();setType(type);renderFixed();renderRecurring()}
+function renderCategorySettings(){if($("fixedCategory")){const cur=$("fixedCategory").value;$("fixedCategory").innerHTML=cats.expense.map(x=>"<option>"+esc(x)+"</option>").join("");if(cats.expense.includes(cur))$("fixedCategory").value=cur}if($("recCategory")){const cur=$("recCategory").value;$("recCategory").innerHTML=cats.expense.map(x=>"<option>"+esc(x)+"</option>").join("");if(cats.expense.includes(cur))$("recCategory").value=cur}["expense","income"].forEach(kind=>{const box=$(kind+"CategoryList");box.innerHTML=cats[kind].map((name,i)=>'<div class="category-row"><input class="categoryName" data-kind="'+kind+'" data-index="'+i+'" value="'+esc(name)+'"><button class="secondary categoryDelete" data-kind="'+kind+'" data-index="'+i+'" type="button">削除</button></div>').join('')});}
+function renameCategory(kind,index,newName){const old=cats[kind][index],v=newName.trim();if(!v||v===old)return;cats[kind][index]=v;data.forEach(x=>{if(x.type===kind&&x.category===old)x.category=v});fixedCosts.forEach(x=>{if(x.category===old)x.category=v});recurring.forEach(x=>{if(x.category===old)x.category=v});save();saveFixed();saveRecurring();saveCategories();render()}
+$("expenseCategoryList").addEventListener("change",e=>{if(e.target.classList.contains("categoryName"))renameCategory(e.target.dataset.kind,Number(e.target.dataset.index),e.target.value)});$("incomeCategoryList").addEventListener("change",e=>{if(e.target.classList.contains("categoryName"))renameCategory(e.target.dataset.kind,Number(e.target.dataset.index),e.target.value)});
+function categoryDelete(e){const b=e.target.closest(".categoryDelete");if(!b)return;const kind=b.dataset.kind,i=Number(b.dataset.index),name=cats[kind][i];if(data.some(x=>x.type===kind&&x.category===name)){alert("このカテゴリを使っている明細があるため、先に名前変更してね");return}cats[kind].splice(i,1);saveCategories()}
+$("expenseCategoryList").addEventListener("click",categoryDelete);$("incomeCategoryList").addEventListener("click",categoryDelete);
+$("addExpenseCategory").onclick=()=>{const v=$("newExpenseCategory").value.trim();if(v&&!cats.expense.includes(v)){cats.expense.push(v);$("newExpenseCategory").value="";saveCategories()}};$("addIncomeCategory").onclick=()=>{const v=$("newIncomeCategory").value.trim();if(v&&!cats.income.includes(v)){cats.income.push(v);$("newIncomeCategory").value="";saveCategories()}};
+const CHARACTERS=[
+["bear","くま","#c99563","#f3d5aa","丸い耳のやさしいくま"],["cat","ねこ","#d6a46f","#fff0d7","のんびり三毛ねこ"],["rabbit","うさぎ","#efb7b4","#fff2ed","ふわふわうさぎ"],["dog","いぬ","#c99562","#f6dfc5","たれ耳のいぬ"],["hamster","ハムスター","#d69a61","#f5d6ad","ほっぺがかわいいハムスター"],["penguin","ペンギン","#61788e","#d9e5ed","マフラーのペンギン"],["panda","パンダ","#5e5b59","#eef0e8","葉っぱを持ったパンダ"],["fox","きつね","#d77d43","#f5c88d","ふさふさきつね"],["otter","カワウソ","#9b704f","#e5c19d","貯金箱を抱えたカワウソ"]];
+function charSvg(key,size=100,stage=0){
+  const c=CHARACTERS.find(x=>x[0]===key);if(!c)return"";
+  const [k,n]=c;
+  const badge=stage>=4?'👑':stage>=3?'✨':stage>=2?'🌱':'';
+  return '<span class="char-art-wrap" style="width:'+size+'px;height:'+size+'px"><img class="char-art" src="./characters/'+k+'.jpg" alt="'+n+'">'+(badge?'<span class="char-growth-badge">'+badge+'</span>':'')+'</span>';
+}
+function renderCharacterChoices(){const box=$("characterChoices");if(!box)return;box.innerHTML=CHARACTERS.map(c=>'<button class="choice-btn char-btn" data-char="'+c[0]+'" type="button">'+charSvg(c[0],74,0)+'<span class="char-label">'+c[1]+'</span></button>').join('')+'<button class="choice-btn char-btn" data-char="none" type="button"><div class="char-art" style="display:grid;place-items:center;font-size:34px;color:var(--muted)">⊘</div><span class="char-label">なし</span></button>'}
+function updateCharacterStage(){const stageBox=$("characterStage"),home=$("homeCharacter");if(!stageBox||!home)return;const ch=getStore("mone_char_v1")||"bear",growth=getStore("mone_growth_v1")==="1";if(ch==='none'){stageBox.classList.remove('show');return}const saved=Number(getStore("money_saved_v2")||0),goal=goalAmount(),pct=Math.min(100,goal?saved/goal*100:0),stage=growth?(pct>=100?4:pct>=75?3:pct>=50?2:pct>=25?1:0):0;home.innerHTML=charSvg(ch,92,stage);stageBox.classList.add('show');$("characterStageTitle").textContent=growth?(pct>=100?'目標達成！おめでとう 🎉':pct>=75?'ゴールまであと少し！':pct>=50?'半分まできたよ！':pct>=25?'いいペースだよ':'一緒にコツコツ貯めよう'):'MONEの相棒';$("characterStageText").textContent=growth?'貯金目標の '+pct.toFixed(0)+'% まで進んでいるよ。':'設定で成長演出もONにできるよ。'}
+function applyTheme(){const t=getStore("mone_theme_v1")||"beige";document.body.className=t==="beige"?"":"theme-"+t;document.querySelectorAll("[data-theme]").forEach(b=>b.classList.toggle("active",b.dataset.theme===t));const ch=getStore("mone_char_v1")||"bear",c=CHARACTERS.find(x=>x[0]===ch);$("characterPreview").innerHTML=ch==='none'?'<div class="help">キャラクターなし</div>':charSvg(ch,116,0)+(c?'<div style="font-weight:800">'+c[1]+'</div><div class="help">'+c[4]+'</div>':'');document.querySelectorAll("[data-char]").forEach(b=>b.classList.toggle("active",b.dataset.char===ch));$("characterGrowth").checked=getStore("mone_growth_v1")==="1";updateCharacterStage()}
+renderCharacterChoices();
+$("themeChoices").onclick=e=>{const b=e.target.closest("[data-theme]");if(!b)return;localStorage.setItem("mone_theme_v1",b.dataset.theme);applyTheme()};$("characterChoices").onclick=e=>{const b=e.target.closest("[data-char]");if(!b)return;localStorage.setItem("mone_char_v1",b.dataset.char);applyTheme()};$("characterGrowth").onchange=e=>{localStorage.setItem("mone_growth_v1",e.target.checked?"1":"0");updateCharacterStage()};
+document.querySelectorAll('.settings-toggle').forEach(btn=>btn.onclick=()=>{const panel=$(btn.dataset.settingsTarget),willOpen=!panel.classList.contains('open');document.querySelectorAll('.settings-panel').forEach(p=>p.classList.remove('open'));document.querySelectorAll('.settings-toggle .chev').forEach(c=>c.textContent='›');if(willOpen){panel.classList.add('open');btn.querySelector('.chev').textContent='⌄'}});
+renderCategorySettings();applyTheme();
+setupMoneyInputs();
+initAuth();
+$("date").value=new Date().toISOString().slice(0,10);$("cardTxnDate").value=new Date().toISOString().slice(0,10);
+setType("expense");render();renderGoal();renderPayday();renderFixed();renderRecurring();renderCards();switchPage("home");
+})();
+</script>
+</body>
+</html>
